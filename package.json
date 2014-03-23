@@ -15,7 +15,9 @@
     "react/lib/mergeInto": "global:__ReactShim.mergeInto",
     "react/lib/ReactUpdates": "global:__ReactShim.ReactUpdates",
     "react/lib/ExecutionEnvironment": "global:__ReactShim.ExecutionEnvironment",
-    "react/lib/emptyFunction": "global:__ReactShim.emptyFunction"
+    "react/lib/emptyFunction": "global:__ReactShim.emptyFunction",
+    "react-async/lib/isAsyncComponent": "global:__ReactAsyncShim.isAsyncComponent",
+    "react-async/lib/prefetchAsyncState": "global:__ReactAsyncShim.prefetchAsyncState"
   },
   "devDependencies": {
     "browserify": "^3.33.0",

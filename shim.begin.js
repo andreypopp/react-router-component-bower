@@ -1,8 +1,8 @@
 ;(function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['react'], factory);
+    define(['react', 'react-async'], factory);
   } else {
-    root.ReactRouter = factory(root.React);
+    root.ReactRouter = factory(root.React, root.ReactAsync);
   }
 })(this, function(React) {
 
@@ -43,4 +43,7 @@
   __ReactShim.ReactUpdates = {
     batchedUpdates: function(cb) { cb(); }
   };
+
+  __ReactAsyncShim.isAsyncComponent = ReactAsync.isAsyncComponent;
+  __ReactAsyncShim.prefetchAsyncState = ReactAsync.prefetchAsyncState;
 
