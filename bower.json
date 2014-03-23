@@ -1,0 +1,33 @@
+{
+  "name": "react-router-component",
+  "main": "react-router-component.js",
+  "version": "0.15.0",
+  "authors": [
+    "Andrey Popp <8mayday@gmail.com>"
+  ],
+  "description": "Declarative router component for React",
+  "moduleType": [
+    "amd",
+    "globals"
+  ],
+  "keywords": [
+    "react",
+    "react-component",
+    "router",
+    "history",
+    "pushState"
+  ],
+  "license": "MIT",
+  "homepage": "http://andreypopp.viewdocs.io/react-router-component",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "react": "~0.10.0",
+    "react-async": "~0.7.0"
+  }
+}
