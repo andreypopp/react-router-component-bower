@@ -4,7 +4,7 @@
   } else {
     root.ReactRouter = factory(root.React, root.ReactAsync);
   }
-})(this, function(React) {
+})(this, function(React, ReactAsync) {
 
   var __ReactShim = window.__ReactShim = window.__ReactShim || {};
 
