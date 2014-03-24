@@ -44,6 +44,7 @@
     batchedUpdates: function(cb) { cb(); }
   };
 
+  var __ReactAsyncShim = window.__ReactAsyncShim = window.__ReactAsyncShim || {};
   __ReactAsyncShim.isAsyncComponent = ReactAsync.isAsyncComponent;
   __ReactAsyncShim.prefetchAsyncState = ReactAsync.prefetchAsyncState;
 

@@ -5,8 +5,7 @@ BIN = ../node_modules/.bin
 PATH := $(BIN):$(PATH)
 NODE_PATH := ./src/node_modules/:$(NODE_PATH)
 TARGETS = \
-	react-router-component.js \
-	react-router-component.min.js
+	react-router-component.js
 
 build: $(TARGETS)
 
