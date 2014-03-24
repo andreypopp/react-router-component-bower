@@ -47,20 +47,21 @@
   __ReactAsyncShim.isAsyncComponent = ReactAsync.isAsyncComponent;
   __ReactAsyncShim.prefetchAsyncState = ReactAsync.prefetchAsyncState;
 
-!function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.ReactRouter=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+  return
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(__browserify__,module,exports){
 "use strict";
 
-var Router                    = _dereq_('./lib/Router');
-var Route                     = _dereq_('./lib/Route');
-var Link                      = _dereq_('./lib/Link');
+var Router                    = __browserify__('./lib/Router');
+var Route                     = __browserify__('./lib/Route');
+var Link                      = __browserify__('./lib/Link');
 
-var RouterMixin               = _dereq_('./lib/RouterMixin');
-var AsyncRouteRenderingMixin  = _dereq_('./lib/AsyncRouteRenderingMixin');
-var RouteRenderingMixin       = _dereq_('./lib/RouteRenderingMixin');
+var RouterMixin               = __browserify__('./lib/RouterMixin');
+var AsyncRouteRenderingMixin  = __browserify__('./lib/AsyncRouteRenderingMixin');
+var RouteRenderingMixin       = __browserify__('./lib/RouteRenderingMixin');
 
-var NavigatableMixin          = _dereq_('./lib/NavigatableMixin');
+var NavigatableMixin          = __browserify__('./lib/NavigatableMixin');
 
-var Environment               = _dereq_('./lib/Environment');
+var Environment               = __browserify__('./lib/Environment');
 
 module.exports = {
   Locations: Router.Locations,
@@ -81,7 +82,7 @@ module.exports = {
   NavigatableMixin: NavigatableMixin
 };
 
-},{"./lib/AsyncRouteRenderingMixin":2,"./lib/Environment":3,"./lib/Link":4,"./lib/NavigatableMixin":5,"./lib/Route":6,"./lib/RouteRenderingMixin":7,"./lib/Router":8,"./lib/RouterMixin":9}],2:[function(_dereq_,module,exports){
+},{"./lib/AsyncRouteRenderingMixin":2,"./lib/Environment":3,"./lib/Link":4,"./lib/NavigatableMixin":5,"./lib/Route":6,"./lib/RouteRenderingMixin":7,"./lib/Router":8,"./lib/RouterMixin":9}],2:[function(__browserify__,module,exports){
 "use strict";
 
 var prefetchAsyncState  = (window.__ReactAsyncShim.prefetchAsyncState);
@@ -139,7 +140,7 @@ var AsyncRouteRenderingMixin = {
 
 module.exports = AsyncRouteRenderingMixin;
 
-},{}],3:[function(_dereq_,module,exports){
+},{}],3:[function(__browserify__,module,exports){
 "use strict";
 /**
  * Routing environment.
@@ -389,12 +390,12 @@ module.exports = {
   Mixin: Mixin
 };
 
-},{}],4:[function(_dereq_,module,exports){
+},{}],4:[function(__browserify__,module,exports){
 "use strict";
 
 var React             = (window.__ReactShim.React);
-var NavigatableMixin  = _dereq_('./NavigatableMixin');
-var Environment       = _dereq_('./Environment');
+var NavigatableMixin  = __browserify__('./NavigatableMixin');
+var Environment       = __browserify__('./Environment');
 
 /**
  * Link.
@@ -467,11 +468,11 @@ var Link = React.createClass({
 
 module.exports = Link;
 
-},{"./Environment":3,"./NavigatableMixin":5}],5:[function(_dereq_,module,exports){
+},{"./Environment":3,"./NavigatableMixin":5}],5:[function(__browserify__,module,exports){
 "use strict";
 
 var React       = (window.__ReactShim.React);
-var Environment = _dereq_('./Environment');
+var Environment = __browserify__('./Environment');
 
 
 /**
@@ -508,7 +509,7 @@ var NavigatableMixin = {
 
 module.exports = NavigatableMixin;
 
-},{"./Environment":3}],6:[function(_dereq_,module,exports){
+},{"./Environment":3}],6:[function(__browserify__,module,exports){
 "use strict";
 
 var invariant = (window.__ReactShim.invariant);
@@ -579,7 +580,7 @@ module.exports = {
   NotFound: NotFound
 };
 
-},{}],7:[function(_dereq_,module,exports){
+},{}],7:[function(__browserify__,module,exports){
 "use strict";
 
 /**
@@ -595,12 +596,12 @@ var RouteRenderingMixin = {
 
 module.exports = RouteRenderingMixin;
 
-},{}],8:[function(_dereq_,module,exports){
+},{}],8:[function(__browserify__,module,exports){
 "use strict";
 
 var React                     = (window.__ReactShim.React);
-var RouterMixin               = _dereq_('./RouterMixin');
-var AsyncRouteRenderingMixin  = _dereq_('./AsyncRouteRenderingMixin');
+var RouterMixin               = __browserify__('./RouterMixin');
+var AsyncRouteRenderingMixin  = __browserify__('./AsyncRouteRenderingMixin');
 
 /**
  * Create a new router class
@@ -639,14 +640,14 @@ module.exports = {
   Pages: createRouter('Pages', React.DOM.body),
 }
 
-},{"./AsyncRouteRenderingMixin":2,"./RouterMixin":9}],9:[function(_dereq_,module,exports){
+},{"./AsyncRouteRenderingMixin":2,"./RouterMixin":9}],9:[function(__browserify__,module,exports){
 "use strict";
 
 var React         = (window.__ReactShim.React);
 var invariant     = (window.__ReactShim.invariant);
 var emptyFunction = (window.__ReactShim.emptyFunction);
-var matchRoutes   = _dereq_('./matchRoutes');
-var Environment   = _dereq_('./Environment');
+var matchRoutes   = __browserify__('./matchRoutes');
+var Environment   = __browserify__('./Environment');
 
 var RouterMixin = {
   mixins: [Environment.Mixin],
@@ -828,10 +829,10 @@ function isString(o) {
 
 module.exports = RouterMixin;
 
-},{"./Environment":3,"./matchRoutes":10}],10:[function(_dereq_,module,exports){
+},{"./Environment":3,"./matchRoutes":10}],10:[function(__browserify__,module,exports){
 "use strict";
 
-var pattern   = _dereq_('url-pattern');
+var pattern   = __browserify__('url-pattern');
 var mergeInto = (window.__ReactShim.mergeInto);
 var invariant = (window.__ReactShim.invariant);
 
@@ -911,7 +912,7 @@ Match.prototype.getHandler = function(ignoreRef) {
 
 module.exports = matchRoutes;
 
-},{"url-pattern":12}],11:[function(_dereq_,module,exports){
+},{"url-pattern":12}],11:[function(__browserify__,module,exports){
 // Generated by CoffeeScript 1.7.1
 var common,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -946,11 +947,11 @@ module.exports = common = {
   }
 };
 
-},{}],12:[function(_dereq_,module,exports){
+},{}],12:[function(__browserify__,module,exports){
 // Generated by CoffeeScript 1.7.1
 var common, patternPrototype;
 
-common = _dereq_('./common');
+common = __browserify__('./common');
 
 patternPrototype = {
   match: function(url) {
@@ -996,5 +997,4 @@ module.exports = function(arg) {
 };
 
 },{"./common":11}]},{},[1])
-(1)
-});});
+});
