@@ -9,6 +9,13 @@ TARGETS = \
 
 build: $(TARGETS)
 
+release:
+	(cd src && git fetch --all && git checkout $(VERSION))
+	git tag $(VERSION)
+	git commit -m "$(VERSION)"
+	git push origin master
+	git push --tags origin master
+
 react-router-component.prod.js:
 	$(call browserify,production)
 
