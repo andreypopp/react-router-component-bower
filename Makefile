@@ -24,7 +24,7 @@ clean:
 define browserify
 	@mkdir -p $(@D)
 	@cat ./shim.begin.js > $@
-	@NODE_PATH=$(NODE_PATH) NODE_ENV=$(1) browserify ./ \
+	@NODE_PATH=$(NODE_PATH) NODE_ENV=$(1) browserify -r ./:__main__ \
 		| sed -E 's/function\(require/function(__browserify__/g' \
 		| sed -E 's/require\(/__browserify__(/g' \
 		>> $@

@@ -48,4 +48,3 @@
   __ReactAsyncShim.isAsyncComponent = ReactAsync.isAsyncComponent;
   __ReactAsyncShim.prefetchAsyncState = ReactAsync.prefetchAsyncState;
 
-  return

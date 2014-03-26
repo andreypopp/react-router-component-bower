@@ -48,7 +48,7 @@
   __ReactAsyncShim.isAsyncComponent = ReactAsync.isAsyncComponent;
   __ReactAsyncShim.prefetchAsyncState = ReactAsync.prefetchAsyncState;
 
-  return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++) return s(r[o]);return s})({1:[function(__browserify__,module,exports){
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"Focm2+":[function(__browserify__,module,exports){
 "use strict";
 
 var Router                    = __browserify__('./lib/Router');
@@ -82,7 +82,9 @@ module.exports = {
   NavigatableMixin: NavigatableMixin
 };
 
-},{"./lib/AsyncRouteRenderingMixin":2,"./lib/Link":3,"./lib/NavigatableMixin":4,"./lib/Route":5,"./lib/RouteRenderingMixin":6,"./lib/Router":7,"./lib/RouterMixin":8,"./lib/environment":13}],2:[function(__browserify__,module,exports){
+},{"./lib/AsyncRouteRenderingMixin":3,"./lib/Link":4,"./lib/NavigatableMixin":5,"./lib/Route":6,"./lib/RouteRenderingMixin":7,"./lib/Router":8,"./lib/RouterMixin":9,"./lib/environment":14}],"__main__":[function(__browserify__,module,exports){
+module.exports=__browserify__('Focm2+');
+},{}],3:[function(__browserify__,module,exports){
 "use strict";
 
 var prefetchAsyncState  = (window.__ReactAsyncShim.prefetchAsyncState);
@@ -140,7 +142,7 @@ var AsyncRouteRenderingMixin = {
 
 module.exports = AsyncRouteRenderingMixin;
 
-},{}],3:[function(__browserify__,module,exports){
+},{}],4:[function(__browserify__,module,exports){
 "use strict";
 
 var React             = (window.__ReactShim.React);
@@ -218,7 +220,7 @@ var Link = React.createClass({
 
 module.exports = Link;
 
-},{"./NavigatableMixin":4,"./environment":13}],4:[function(__browserify__,module,exports){
+},{"./NavigatableMixin":5,"./environment":14}],5:[function(__browserify__,module,exports){
 "use strict";
 
 var React       = (window.__ReactShim.React);
@@ -259,7 +261,7 @@ var NavigatableMixin = {
 
 module.exports = NavigatableMixin;
 
-},{"./environment":13}],5:[function(__browserify__,module,exports){
+},{"./environment":14}],6:[function(__browserify__,module,exports){
 "use strict";
 
 var invariant = (window.__ReactShim.invariant);
@@ -330,7 +332,7 @@ module.exports = {
   NotFound: NotFound
 };
 
-},{}],6:[function(__browserify__,module,exports){
+},{}],7:[function(__browserify__,module,exports){
 "use strict";
 
 /**
@@ -346,7 +348,7 @@ var RouteRenderingMixin = {
 
 module.exports = RouteRenderingMixin;
 
-},{}],7:[function(__browserify__,module,exports){
+},{}],8:[function(__browserify__,module,exports){
 "use strict";
 
 var React                     = (window.__ReactShim.React);
@@ -390,7 +392,7 @@ module.exports = {
   Pages: createRouter('Pages', React.DOM.body),
 }
 
-},{"./AsyncRouteRenderingMixin":2,"./RouterMixin":8}],8:[function(__browserify__,module,exports){
+},{"./AsyncRouteRenderingMixin":3,"./RouterMixin":9}],9:[function(__browserify__,module,exports){
 "use strict";
 
 var React         = (window.__ReactShim.React);
@@ -575,7 +577,7 @@ function isString(o) {
 
 module.exports = RouterMixin;
 
-},{"./environment":13,"./matchRoutes":14}],9:[function(__browserify__,module,exports){
+},{"./environment":14,"./matchRoutes":15}],10:[function(__browserify__,module,exports){
 "use strict";
 
 var Environment   = __browserify__('./Environment');
@@ -606,7 +608,7 @@ DummyEnvironment.prototype.stop = emptyFunction;
 
 module.exports = DummyEnvironment;
 
-},{"./Environment":10}],10:[function(__browserify__,module,exports){
+},{"./Environment":11}],11:[function(__browserify__,module,exports){
 "use strict";
 
 var ReactUpdates  = (window.__ReactShim.ReactUpdates);
@@ -700,7 +702,7 @@ Environment.prototype.unregister = function unregister(router) {
 
 module.exports = Environment;
 
-},{}],11:[function(__browserify__,module,exports){
+},{}],12:[function(__browserify__,module,exports){
 "use strict";
 
 var Environment = __browserify__('./Environment');
@@ -747,7 +749,7 @@ HashEnvironment.prototype.onHashChange = function() {
 
 module.exports = HashEnvironment;
 
-},{"./Environment":10}],12:[function(__browserify__,module,exports){
+},{"./Environment":11}],13:[function(__browserify__,module,exports){
 "use strict";
 
 var Environment = __browserify__('./Environment');
@@ -793,7 +795,7 @@ PathnameEnvironment.prototype.onPopState = function(e) {
 
 module.exports = PathnameEnvironment;
 
-},{"./Environment":10}],13:[function(__browserify__,module,exports){
+},{"./Environment":11}],14:[function(__browserify__,module,exports){
 "use strict";
 /**
  * Routing environment.
@@ -862,7 +864,7 @@ module.exports = {
   Mixin: Mixin
 };
 
-},{"./DummyEnvironment":9,"./Environment":10,"./HashEnvironment":11,"./PathnameEnvironment":12}],14:[function(__browserify__,module,exports){
+},{"./DummyEnvironment":10,"./Environment":11,"./HashEnvironment":12,"./PathnameEnvironment":13}],15:[function(__browserify__,module,exports){
 "use strict";
 
 var pattern   = __browserify__('url-pattern');
@@ -945,7 +947,7 @@ Match.prototype.getHandler = function(ignoreRef) {
 
 module.exports = matchRoutes;
 
-},{"url-pattern":16}],15:[function(__browserify__,module,exports){
+},{"url-pattern":17}],16:[function(__browserify__,module,exports){
 // Generated by CoffeeScript 1.7.1
 var common,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -980,7 +982,7 @@ module.exports = common = {
   }
 };
 
-},{}],16:[function(__browserify__,module,exports){
+},{}],17:[function(__browserify__,module,exports){
 // Generated by CoffeeScript 1.7.1
 var common, patternPrototype;
 
@@ -1029,5 +1031,7 @@ module.exports = function(arg) {
   return p;
 };
 
-},{"./common":15}]},{},[1])
+},{"./common":16}]},{},[])
+
+  return require('__main__');
 });
