@@ -61,7 +61,7 @@ var RouteRenderingMixin       = __browserify__('./lib/RouteRenderingMixin');
 
 var NavigatableMixin          = __browserify__('./lib/NavigatableMixin');
 
-var Environment               = __browserify__('./lib/Environment');
+var environment               = __browserify__('./lib/environment');
 
 module.exports = {
   Locations: Router.Locations,
@@ -73,7 +73,7 @@ module.exports = {
 
   Link: Link,
 
-  Environment: Environment,
+  environment: environment,
 
   RouterMixin: RouterMixin,
   RouteRenderingMixin: RouteRenderingMixin,
@@ -82,7 +82,7 @@ module.exports = {
   NavigatableMixin: NavigatableMixin
 };
 
-},{"./lib/AsyncRouteRenderingMixin":2,"./lib/Environment":3,"./lib/Link":4,"./lib/NavigatableMixin":5,"./lib/Route":6,"./lib/RouteRenderingMixin":7,"./lib/Router":8,"./lib/RouterMixin":9}],2:[function(__browserify__,module,exports){
+},{"./lib/AsyncRouteRenderingMixin":2,"./lib/Link":3,"./lib/NavigatableMixin":4,"./lib/Route":5,"./lib/RouteRenderingMixin":6,"./lib/Router":7,"./lib/RouterMixin":8,"./lib/environment":13}],2:[function(__browserify__,module,exports){
 "use strict";
 
 var prefetchAsyncState  = (window.__ReactAsyncShim.prefetchAsyncState);
@@ -142,260 +142,10 @@ module.exports = AsyncRouteRenderingMixin;
 
 },{}],3:[function(__browserify__,module,exports){
 "use strict";
-/**
- * Routing environment.
- *
- * It specifies how routers read its state from DOM and synchronise it back.
- */
-
-var ReactUpdates          = (window.__ReactShim.ReactUpdates);
-var emptyFunction         = (window.__ReactShim.emptyFunction);
-var ExecutionEnvironment  = (window.__ReactShim.ExecutionEnvironment);
-
-/**
- * Base abstract class for a routing environment.
- *
- * @private
- */
-function Environment() {
-  this.routers = [];
-  this.path = this.getPath();
-}
-
-/**
- * Notify routers about the change.
- *
- * @param {Object} navigation
- * @param {Function} cb
- */
-Environment.prototype.notify = function notify(navigation, cb) {
-  var latch = this.routers.length;
-
-  if (latch === 0) {
-    return cb && cb();
-  }
-
-  function callback() {
-    latch -= 1;
-    if (cb && latch === 0) {
-      cb();
-    }
-  }
-
-  ReactUpdates.batchedUpdates(function() {
-    for (var i = 0, len = this.routers.length; i < len; i++) {
-      this.routers[i].setPath(this.path, navigation, callback);
-    }
-  }.bind(this));
-}
-
-Environment.prototype.makeHref = function makeHref(path) {
-  return path;
-}
-
-Environment.prototype.navigate = function navigate(path, navigation, cb) {
-  if (typeof navigation === 'function' && cb === undefined) {
-    cb = navigation;
-    navigation = {};
-  }
-  return this.setPath(path, navigation, cb);
-}
-
-Environment.prototype.setPath = function(path, navigation, cb) {
-  if (!navigation.isPopState) {
-    if (navigation.replace) {
-      this.replaceState(path, navigation);
-    } else {
-      this.pushState(path, navigation);
-    }
-  }
-  this.path = path;
-  this.notify(navigation, cb);
-}
-
-/**
- * Register router with an environment.
- */
-Environment.prototype.register = function register(router) {
-  if (this.routers.length === 0) {
-    this.start();
-  }
-
-  if (!router.getParentRouter()) {
-    this.routers.push(router);
-  }
-}
-
-/**
- * Unregister router from an environment.
- */
-Environment.prototype.unregister = function unregister(router) {
-  if (this.routers.indexOf(router) > -1) {
-    this.routers.splice(this.routers.indexOf(router), 1);
-  }
-
-  if (this.routers.length === 0) {
-    this.stop();
-  }
-}
-
-/**
- * Routing environment which routes by `location.pathname`.
- */
-function PathnameEnvironment() {
-  Environment.call(this);
-}
-
-PathnameEnvironment.prototype = Object.create(Environment.prototype);
-PathnameEnvironment.prototype.constructor = PathnameEnvironment;
-
-PathnameEnvironment.prototype.getPath = function() {
-  return window.location.pathname;
-}
-
-PathnameEnvironment.prototype.pushState = function(path, navigation) {
-  window.history.pushState({}, '', path);
-}
-
-PathnameEnvironment.prototype.replaceState = function(path, navigation) {
-  window.history.replaceState({}, '', path);
-}
-
-PathnameEnvironment.prototype.start = function() {
-  window.addEventListener('popstate', this.onPopState.bind(this));
-};
-
-PathnameEnvironment.prototype.stop = function() {
-  window.removeEventListener('popstate', this.onPopState.bind(this));
-};
-
-PathnameEnvironment.prototype.onPopState = function(e) {
-  var path = window.location.pathname;
-
-  if (this.path !== path) {
-    this.setPath(path, {isPopState: true});
-  }
-};
-
-/**
- * Routing environment which routes by `location.hash`.
- */
-function HashEnvironment() {
-  Environment.call(this);
-}
-
-HashEnvironment.prototype = Object.create(Environment.prototype);
-HashEnvironment.prototype.constructor = HashEnvironment;
-
-HashEnvironment.prototype.getPath = function() {
-  return window.location.hash.slice(1) || '/';
-};
-
-HashEnvironment.prototype.pushState = function(path, navigation) {
-  window.location.hash = path;
-}
-
-HashEnvironment.prototype.replaceState = function(path, navigation) {
-  var href = window.location.href.replace(/(javascript:|#).*$/, '');
-  window.location.replace(href + '#' + path);
-}
-
-HashEnvironment.prototype.start = function() {
-  window.addEventListener('hashchange', this.onHashChange.bind(this));
-};
-
-HashEnvironment.prototype.stop = function() {
-  window.removeEventListener('hashchange', this.onHashChange.bind(this));
-};
-
-HashEnvironment.prototype.onHashChange = function() {
-  var path = this.getPath();
-
-  if (this.path !== path) {
-    this.setPath(path, {isPopState: true});
-  }
-};
-
-/**
- * Dummy routing environment which provides no path.
- *
- * Should be used on server or in WebWorker.
- */
-function DummyEnvironment() {
-  Environment.call(this);
-}
-
-DummyEnvironment.prototype = Object.create(Environment.prototype);
-DummyEnvironment.prototype.constructor = DummyEnvironment;
-
-DummyEnvironment.prototype.getPath = emptyFunction.thatReturnsNull;
-
-DummyEnvironment.prototype.setPath = function(path, cb) {
-  this.path = path;
-  cb();
-};
-
-DummyEnvironment.prototype.start = emptyFunction;
-
-DummyEnvironment.prototype.stop = emptyFunction;
-
-/**
- * Mixin for routes to keep attached to an environment.
- *
- * This mixin assumes the environment is passed via props.
- */
-var Mixin = {
-
-  componentDidMount: function() {
-    this.getEnvironment().register(this);
-  },
-
-  componentWillUnmount: function() {
-    this.getEnvironment().unregister(this);
-  }
-};
-
-var pathnameEnvironment;
-var hashEnvironment;
-var defaultEnvironment;
-var dummyEnvironment;
-
-if (ExecutionEnvironment.canUseDOM) {
-
-  pathnameEnvironment = new PathnameEnvironment();
-  hashEnvironment     = new HashEnvironment();
-  defaultEnvironment  = (window.history !== undefined) ?
-                        pathnameEnvironment :
-                        hashEnvironment; 
-
-} else {
-
-  dummyEnvironment    = new DummyEnvironment();
-  pathnameEnvironment = dummyEnvironment;
-  hashEnvironment     = dummyEnvironment;
-  defaultEnvironment  = dummyEnvironment;
-
-}
-
-module.exports = {
-  pathnameEnvironment: pathnameEnvironment,
-  hashEnvironment: hashEnvironment,
-  defaultEnvironment: defaultEnvironment,
-  dummyEnvironment: dummyEnvironment,
-
-  Environment: Environment,
-  PathnameEnvironment: PathnameEnvironment,
-  HashEnvironment: HashEnvironment,
-
-  Mixin: Mixin
-};
-
-},{}],4:[function(__browserify__,module,exports){
-"use strict";
 
 var React             = (window.__ReactShim.React);
 var NavigatableMixin  = __browserify__('./NavigatableMixin');
-var Environment       = __browserify__('./Environment');
+var Environment       = __browserify__('./environment');
 
 /**
  * Link.
@@ -468,11 +218,11 @@ var Link = React.createClass({
 
 module.exports = Link;
 
-},{"./Environment":3,"./NavigatableMixin":5}],5:[function(__browserify__,module,exports){
+},{"./NavigatableMixin":4,"./environment":13}],4:[function(__browserify__,module,exports){
 "use strict";
 
 var React       = (window.__ReactShim.React);
-var Environment = __browserify__('./Environment');
+var Environment = __browserify__('./environment');
 
 
 /**
@@ -509,7 +259,7 @@ var NavigatableMixin = {
 
 module.exports = NavigatableMixin;
 
-},{"./Environment":3}],6:[function(__browserify__,module,exports){
+},{"./environment":13}],5:[function(__browserify__,module,exports){
 "use strict";
 
 var invariant = (window.__ReactShim.invariant);
@@ -580,7 +330,7 @@ module.exports = {
   NotFound: NotFound
 };
 
-},{}],7:[function(__browserify__,module,exports){
+},{}],6:[function(__browserify__,module,exports){
 "use strict";
 
 /**
@@ -596,7 +346,7 @@ var RouteRenderingMixin = {
 
 module.exports = RouteRenderingMixin;
 
-},{}],8:[function(__browserify__,module,exports){
+},{}],7:[function(__browserify__,module,exports){
 "use strict";
 
 var React                     = (window.__ReactShim.React);
@@ -640,14 +390,13 @@ module.exports = {
   Pages: createRouter('Pages', React.DOM.body),
 }
 
-},{"./AsyncRouteRenderingMixin":2,"./RouterMixin":9}],9:[function(__browserify__,module,exports){
+},{"./AsyncRouteRenderingMixin":2,"./RouterMixin":8}],8:[function(__browserify__,module,exports){
 "use strict";
 
 var React         = (window.__ReactShim.React);
 var invariant     = (window.__ReactShim.invariant);
-var emptyFunction = (window.__ReactShim.emptyFunction);
 var matchRoutes   = __browserify__('./matchRoutes');
-var Environment   = __browserify__('./Environment');
+var Environment   = __browserify__('./environment');
 
 var RouterMixin = {
   mixins: [Environment.Mixin],
@@ -657,13 +406,6 @@ var RouterMixin = {
     contextual: React.PropTypes.bool,
     onBeforeNavigation: React.PropTypes.func,
     onNavigation: React.PropTypes.func
-  },
-
-  getDefaultProps: function() {
-    return {
-      onBeforeNavigation: emptyFunction,
-      onNavigation: emptyFunction
-    };
   },
 
   childContextTypes: {
@@ -799,13 +541,17 @@ var RouterMixin = {
    * @param {Callback} cb
    */
   setPath: function(path, navigation, cb) {
-    this.props.onBeforeNavigation(path, navigation);
+    if (this.props.onBeforeNavigation) {
+      this.props.onBeforeNavigation(path, navigation);
+    }
     this.replaceState({
       match: matchRoutes(this.getRoutes(this.props), path),
       prefix: this.state.prefix,
       navigation: navigation
     }, function() {
-      this.props.onNavigation();
+      if (this.props.onNavigation) {
+        this.props.onNavigation();
+      }
       cb();
     }.bind(this));
   },
@@ -829,7 +575,294 @@ function isString(o) {
 
 module.exports = RouterMixin;
 
-},{"./Environment":3,"./matchRoutes":10}],10:[function(__browserify__,module,exports){
+},{"./environment":13,"./matchRoutes":14}],9:[function(__browserify__,module,exports){
+"use strict";
+
+var Environment   = __browserify__('./Environment');
+var emptyFunction = (window.__ReactShim.emptyFunction);
+
+/**
+ * Dummy routing environment which provides no path.
+ *
+ * Should be used on server or in WebWorker.
+ */
+function DummyEnvironment() {
+  Environment.call(this);
+}
+
+DummyEnvironment.prototype = Object.create(Environment.prototype);
+DummyEnvironment.prototype.constructor = DummyEnvironment;
+
+DummyEnvironment.prototype.getPath = emptyFunction.thatReturnsNull;
+
+DummyEnvironment.prototype.setPath = function(path, cb) {
+  this.path = path;
+  cb();
+};
+
+DummyEnvironment.prototype.start = emptyFunction;
+
+DummyEnvironment.prototype.stop = emptyFunction;
+
+module.exports = DummyEnvironment;
+
+},{"./Environment":10}],10:[function(__browserify__,module,exports){
+"use strict";
+
+var ReactUpdates  = (window.__ReactShim.ReactUpdates);
+
+/**
+ * Base abstract class for a routing environment.
+ *
+ * @private
+ */
+function Environment() {
+  this.routers = [];
+  this.path = this.getPath();
+}
+
+/**
+ * Notify routers about the change.
+ *
+ * @param {Object} navigation
+ * @param {Function} cb
+ */
+Environment.prototype.notify = function notify(navigation, cb) {
+  var latch = this.routers.length;
+
+  if (latch === 0) {
+    return cb && cb();
+  }
+
+  function callback() {
+    latch -= 1;
+    if (cb && latch === 0) {
+      cb();
+    }
+  }
+
+  ReactUpdates.batchedUpdates(function() {
+    for (var i = 0, len = this.routers.length; i < len; i++) {
+      this.routers[i].setPath(this.path, navigation, callback);
+    }
+  }.bind(this));
+}
+
+Environment.prototype.makeHref = function makeHref(path) {
+  return path;
+}
+
+Environment.prototype.navigate = function navigate(path, navigation, cb) {
+  if (typeof navigation === 'function' && cb === undefined) {
+    cb = navigation;
+    navigation = {};
+  }
+  return this.setPath(path, navigation, cb);
+}
+
+Environment.prototype.setPath = function(path, navigation, cb) {
+  if (!navigation.isPopState) {
+    if (navigation.replace) {
+      this.replaceState(path, navigation);
+    } else {
+      this.pushState(path, navigation);
+    }
+  }
+  this.path = path;
+  this.notify(navigation, cb);
+}
+
+/**
+ * Register router with an environment.
+ */
+Environment.prototype.register = function register(router) {
+  if (this.routers.length === 0) {
+    this.start();
+  }
+
+  if (!router.getParentRouter()) {
+    this.routers.push(router);
+  }
+}
+
+/**
+ * Unregister router from an environment.
+ */
+Environment.prototype.unregister = function unregister(router) {
+  if (this.routers.indexOf(router) > -1) {
+    this.routers.splice(this.routers.indexOf(router), 1);
+  }
+
+  if (this.routers.length === 0) {
+    this.stop();
+  }
+}
+
+module.exports = Environment;
+
+},{}],11:[function(__browserify__,module,exports){
+"use strict";
+
+var Environment = __browserify__('./Environment');
+
+/**
+ * Routing environment which routes by `location.hash`.
+ */
+function HashEnvironment() {
+  this.onHashChange = this.onHashChange.bind(this);
+  Environment.call(this);
+}
+
+HashEnvironment.prototype = Object.create(Environment.prototype);
+HashEnvironment.prototype.constructor = HashEnvironment;
+
+HashEnvironment.prototype.getPath = function() {
+  return window.location.hash.slice(1) || '/';
+};
+
+HashEnvironment.prototype.pushState = function(path, navigation) {
+  window.location.hash = path;
+}
+
+HashEnvironment.prototype.replaceState = function(path, navigation) {
+  var href = window.location.href.replace(/(javascript:|#).*$/, '');
+  window.location.replace(href + '#' + path);
+}
+
+HashEnvironment.prototype.start = function() {
+  window.addEventListener('hashchange', this.onHashChange);
+};
+
+HashEnvironment.prototype.stop = function() {
+  window.removeEventListener('hashchange', this.onHashChange);
+};
+
+HashEnvironment.prototype.onHashChange = function() {
+  var path = this.getPath();
+
+  if (this.path !== path) {
+    this.setPath(path, {isPopState: true});
+  }
+};
+
+module.exports = HashEnvironment;
+
+},{"./Environment":10}],12:[function(__browserify__,module,exports){
+"use strict";
+
+var Environment = __browserify__('./Environment');
+
+/**
+ * Routing environment which routes by `location.pathname`.
+ */
+function PathnameEnvironment() {
+  this.onPopState = this.onPopState.bind(this);
+  Environment.call(this);
+}
+
+PathnameEnvironment.prototype = Object.create(Environment.prototype);
+PathnameEnvironment.prototype.constructor = PathnameEnvironment;
+
+PathnameEnvironment.prototype.getPath = function() {
+  return window.location.pathname;
+}
+
+PathnameEnvironment.prototype.pushState = function(path, navigation) {
+  window.history.pushState({}, '', path);
+}
+
+PathnameEnvironment.prototype.replaceState = function(path, navigation) {
+  window.history.replaceState({}, '', path);
+}
+
+PathnameEnvironment.prototype.start = function() {
+  window.addEventListener('popstate', this.onPopState);
+};
+
+PathnameEnvironment.prototype.stop = function() {
+  window.removeEventListener('popstate', this.onPopState);
+};
+
+PathnameEnvironment.prototype.onPopState = function(e) {
+  var path = window.location.pathname;
+
+  if (this.path !== path) {
+    this.setPath(path, {isPopState: true});
+  }
+};
+
+module.exports = PathnameEnvironment;
+
+},{"./Environment":10}],13:[function(__browserify__,module,exports){
+"use strict";
+/**
+ * Routing environment.
+ *
+ * It specifies how routers read its state from DOM and synchronise it back.
+ */
+
+var ExecutionEnvironment  = (window.__ReactShim.ExecutionEnvironment);
+var DummyEnvironment      = __browserify__('./DummyEnvironment');
+var Environment           = __browserify__('./Environment');
+
+/**
+ * Mixin for routes to keep attached to an environment.
+ *
+ * This mixin assumes the environment is passed via props.
+ */
+var Mixin = {
+
+  componentDidMount: function() {
+    this.getEnvironment().register(this);
+  },
+
+  componentWillUnmount: function() {
+    this.getEnvironment().unregister(this);
+  }
+};
+
+var PathnameEnvironment;
+var HashEnvironment;
+
+var pathnameEnvironment;
+var hashEnvironment;
+var defaultEnvironment;
+var dummyEnvironment;
+
+if (ExecutionEnvironment.canUseDOM) {
+
+  PathnameEnvironment = __browserify__('./PathnameEnvironment');
+  HashEnvironment     = __browserify__('./HashEnvironment');
+
+  pathnameEnvironment = new PathnameEnvironment();
+  hashEnvironment     = new HashEnvironment();
+  defaultEnvironment  = (window.history !== undefined) ?
+                        pathnameEnvironment :
+                        hashEnvironment;
+
+} else {
+
+  dummyEnvironment    = new DummyEnvironment();
+  pathnameEnvironment = dummyEnvironment;
+  hashEnvironment     = dummyEnvironment;
+  defaultEnvironment  = dummyEnvironment;
+
+}
+
+module.exports = {
+  pathnameEnvironment: pathnameEnvironment,
+  hashEnvironment: hashEnvironment,
+  defaultEnvironment: defaultEnvironment,
+  dummyEnvironment: dummyEnvironment,
+
+  Environment: Environment,
+  PathnameEnvironment: PathnameEnvironment,
+  HashEnvironment: HashEnvironment,
+
+  Mixin: Mixin
+};
+
+},{"./DummyEnvironment":9,"./Environment":10,"./HashEnvironment":11,"./PathnameEnvironment":12}],14:[function(__browserify__,module,exports){
 "use strict";
 
 var pattern   = __browserify__('url-pattern');
@@ -912,7 +945,7 @@ Match.prototype.getHandler = function(ignoreRef) {
 
 module.exports = matchRoutes;
 
-},{"url-pattern":12}],11:[function(__browserify__,module,exports){
+},{"url-pattern":16}],15:[function(__browserify__,module,exports){
 // Generated by CoffeeScript 1.7.1
 var common,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -947,7 +980,7 @@ module.exports = common = {
   }
 };
 
-},{}],12:[function(__browserify__,module,exports){
+},{}],16:[function(__browserify__,module,exports){
 // Generated by CoffeeScript 1.7.1
 var common, patternPrototype;
 
@@ -996,5 +1029,5 @@ module.exports = function(arg) {
   return p;
 };
 
-},{"./common":11}]},{},[1])
+},{"./common":15}]},{},[1])
 });
