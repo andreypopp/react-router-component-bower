@@ -12,6 +12,8 @@ build: $(TARGETS)
 release:
 	(cd src && git fetch --all && git checkout $(VERSION))
 	git tag $(VERSION)
+	$(MAKE) clean build
+	git add src $(TARGETS)
 	git commit -m "$(VERSION)"
 	git push origin master
 	git push --tags origin master
