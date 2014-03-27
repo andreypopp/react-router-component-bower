@@ -88,9 +88,10 @@ module.exports=__browserify__('Focm2+');
 },{}],3:[function(__browserify__,module,exports){
 "use strict";
 
+var merge               = (window.__ReactShim.merge);
+var cloneWithProps      = (window.__ReactShim.cloneWithProps);
 var prefetchAsyncState  = (window.__ReactAsyncShim.prefetchAsyncState);
 var isAsyncComponent    = (window.__ReactAsyncShim.isAsyncComponent);
-var cloneWithProps      = (window.__ReactShim.cloneWithProps);
 
 /**
  * Mixin for router components which prefetches state of async components
@@ -98,45 +99,40 @@ var cloneWithProps      = (window.__ReactShim.cloneWithProps);
  */
 var AsyncRouteRenderingMixin = {
 
-  shouldComponentUpdate: function(nextProps, nextState) {
-
-    if (nextState.pendingChildren) {
-      return true;
+  setRoutingState: function(state, cb) {
+    if (state.handler && isAsyncComponent(state.handler)) {
+      // store pending state and start fetching async state of a new handler
+      this.setState(
+        {pendingState: state},
+        this.prefetchMatchHandlerState.bind(null, state, cb)
+      );
+    } else {
+      this.replaceState(state, cb);
     }
+  },
 
-    var match = nextState.match;
-    var handler = match.getHandler(true);
+  hasPendingUpdate: function() {
+    return !!this.state.pendingState;
+  },
 
-    if (handler && isAsyncComponent(handler)) {
+  prefetchMatchHandlerState: function(state, cb) {
+    prefetchAsyncState(state.handler, function(err, handler) {
+      // check if we router is still mounted and have the same match in state
+      // as we started fetching state with
+      if (this.isMounted() &&
+          this.state.pendingState &&
+          this.state.pendingState.match === state.match) {
 
-      prefetchAsyncState(handler, function(err, handler) {
-        // check if we router is still mounted and have the same match in state
-        // as we started fetching state with
-        if (this.isMounted() && this.state.match === match) {
+        var nextState = merge(this.state.pendingState, {handler: handler});
+        this.replaceState(nextState, cb);
 
-          this.replaceState({
-            match: this.state.match,
-            prefix: this.state.prefix,
-            navigation: this.state.navigation,
-            pendingChildren: handler
-          });
-
-        }
-      }.bind(this));
-
-      return false;
-    }
-
-    return true;
+      }
+    }.bind(this));
   },
 
   renderRouteHandler: function() {
-    if (this.state.pendingChildren) {
-      var ref = this.state.match.route && this.state.match.route.ref;
-      return cloneWithProps(this.state.pendingChildren, {ref: ref});
-    } else {
-      return this.state.match.getHandler();
-    }
+    var ref = this.state.match.route && this.state.match.route.ref;
+    return cloneWithProps(this.state.handler, {ref: ref});
   }
 
 };
@@ -336,13 +332,16 @@ module.exports = {
 },{}],7:[function(__browserify__,module,exports){
 "use strict";
 
+var cloneWithProps  = (window.__ReactShim.cloneWithProps);
+
 /**
  * Mixin for routers which implements the simplest rendering strategy.
  */
 var RouteRenderingMixin = {
 
   renderRouteHandler: function() {
-    return this.state.match.getHandler();
+    var ref = this.state.match.route && this.state.match.route.ref;
+    return cloneWithProps(this.state.handler, {ref: ref});
   }
 
 };
@@ -431,7 +430,7 @@ var RouterMixin = {
 
   componentWillReceiveProps: function(nextProps) {
     var nextState = this.getRouterState(nextProps);
-    this.replaceState(nextState);
+    this.delegateSetRoutingState(nextState);
   },
 
   getRouterState: function(props) {
@@ -442,15 +441,15 @@ var RouterMixin = {
 
     if (props.contextual && parent) {
 
-      var match = parent.getMatch();
+      var parentMatch = parent.getMatch();
 
       invariant(
-        props.path || isString(match.unmatchedPath),
-        "contextual router has nothing to match on: %s", match.unmatchedPath
+        props.path || isString(parentMatch.unmatchedPath),
+        "contextual router has nothing to match on: %s", parentMatch.unmatchedPath
       );
 
-      path = props.path || match.unmatchedPath;
-      prefix = match.matchedPath;
+      path = props.path || parentMatch.unmatchedPath;
+      prefix = parentMatch.matchedPath;
     } else {
 
       path = props.path || this.getEnvironment().getPath();
@@ -468,8 +467,12 @@ var RouterMixin = {
       path = '/' + path;
     }
 
+    var match = matchRoutes(this.getRoutes(props), path);
+    var handler = match.getHandler();
+
     return {
-      match: matchRoutes(this.getRoutes(props), path),
+      match: match,
+      handler: handler,
       prefix: prefix,
       navigation: {}
     };
@@ -547,11 +550,18 @@ var RouterMixin = {
     if (this.props.onBeforeNavigation) {
       this.props.onBeforeNavigation(path, navigation);
     }
-    this.replaceState({
-      match: matchRoutes(this.getRoutes(this.props), path),
+
+    var match = matchRoutes(this.getRoutes(this.props), path);
+    var handler = match.getHandler();
+
+    var state = {
+      match: match,
+      handler: handler,
       prefix: this.state.prefix,
       navigation: navigation
-    }, function() {
+    };
+
+    this.delegateSetRoutingState(state, function() {
       if (this.props.onNavigation) {
         this.props.onNavigation();
       }
@@ -564,6 +574,18 @@ var RouterMixin = {
    */
   getPath: function () {
     return this.state.match.path;
+  },
+
+  /**
+   * Try to delegate state update to a setRoutingState method (might be provided
+   * by router itself) or use replaceState.
+   */
+  delegateSetRoutingState: function(state, cb) {
+    if (this.setRoutingState) {
+      this.setRoutingState(state, cb);
+    } else {
+      this.replaceState(state, cb);
+    }
   }
 
 };
@@ -935,14 +957,16 @@ function Match(path, route, match) {
     this.path;
 }
 
-Match.prototype.getHandler = function(ignoreRef) {
-  var props = {
-    ref: !ignoreRef && this.route ? this.route.ref : undefined
-  };
-  if (this.route && this.match) {
+Match.prototype.getHandler = function() {
+  var props = {};
+  if (this.match) {
     mergeInto(props, this.match);
+  }
+  if (this.route && this.route.props) {
     mergeInto(props, this.route.props);
   }
+  // we will set ref later during a render call
+  delete props.ref;
   return this.route ? this.route.handler(props) : undefined;
 }
 
