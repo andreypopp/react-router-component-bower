@@ -1,7 +1,7 @@
 {
   "name": "react-router-component",
   "main": "react-router-component.js",
-  "version": "0.15.0",
+  "version": "0.17.0",
   "authors": [
     "Andrey Popp <8mayday@gmail.com>"
   ],
