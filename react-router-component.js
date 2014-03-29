@@ -89,15 +89,16 @@ module.exports=__browserify__('Focm2+');
 "use strict";
 
 var merge               = (window.__ReactShim.merge);
-var cloneWithProps      = (window.__ReactShim.cloneWithProps);
 var prefetchAsyncState  = (window.__ReactAsyncShim.prefetchAsyncState);
 var isAsyncComponent    = (window.__ReactAsyncShim.isAsyncComponent);
+var RouteRenderingMixin = __browserify__('./RouteRenderingMixin');
 
 /**
  * Mixin for router components which prefetches state of async components
  * (as in react-async).
  */
 var AsyncRouteRenderingMixin = {
+  mixins: [RouteRenderingMixin],
 
   setRoutingState: function(state, cb) {
     if (state.handler && isAsyncComponent(state.handler)) {
@@ -128,18 +129,12 @@ var AsyncRouteRenderingMixin = {
 
       }
     }.bind(this));
-  },
-
-  renderRouteHandler: function() {
-    var ref = this.state.match.route && this.state.match.route.ref;
-    return cloneWithProps(this.state.handler, {ref: ref});
   }
-
 };
 
 module.exports = AsyncRouteRenderingMixin;
 
-},{}],4:[function(__browserify__,module,exports){
+},{"./RouteRenderingMixin":7}],4:[function(__browserify__,module,exports){
 "use strict";
 
 var React             = (window.__ReactShim.React);
@@ -397,6 +392,7 @@ module.exports = {
 
 var React         = (window.__ReactShim.React);
 var invariant     = (window.__ReactShim.invariant);
+var merge         = (window.__ReactShim.merge);
 var matchRoutes   = __browserify__('./matchRoutes');
 var Environment   = __browserify__('./environment');
 
@@ -547,10 +543,6 @@ var RouterMixin = {
    * @param {Callback} cb
    */
   setPath: function(path, navigation, cb) {
-    if (this.props.onBeforeNavigation) {
-      this.props.onBeforeNavigation(path, navigation);
-    }
-
     var match = matchRoutes(this.getRoutes(this.props), path);
     var handler = match.getHandler();
 
@@ -560,6 +552,18 @@ var RouterMixin = {
       prefix: this.state.prefix,
       navigation: navigation
     };
+
+    navigation = merge(navigation, {match: match});
+
+    if (this.props.onBeforeNavigation &&
+        this.props.onBeforeNavigation(path, navigation) === false) {
+      return;
+    }
+
+    if (navigation.onBeforeNavigation &&
+        navigation.onBeforeNavigation(path, navigation) === false) {
+      return;
+    }
 
     this.delegateSetRoutingState(state, function() {
       if (this.props.onNavigation) {
